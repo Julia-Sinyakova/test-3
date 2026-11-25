@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<script>(function(){function fmt(a){if(a instanceof Error)return a.message;if(typeof a==="object"&&a!==null){try{return JSON.stringify(a)}catch(e){return String(a)}}return String(a)}function send(t,m,l){try{parent.postMessage({__stc:1,type:t,msg:m,line:l},"*")}catch(e){}}["log","info","warn","error"].forEach(function(m){var o=console[m];console[m]=function(){send(m,Array.prototype.map.call(arguments,fmt).join(" "));if(o)o.apply(console,arguments)}});window.addEventListener("error",function(e){send("error",e.message,e.lineno)});window.addEventListener("unhandledrejection",function(e){send("error","Promise: "+fmt(e.reason))});})();</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Школьный тест</title>
+    <link rel="stylesheet" href="style.css">
+<style>
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f0f4f8;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    width: 100%;
+    position: relative;
+}
+
+.timer-bar {
+    display: none;
+    background: #2c3e50;
+    color: #ffffff;
+    padding: 12px 20px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+    transition: background-color 0.3s;
+}
+
+.timer-bar.warning {
+    background: #e74c3c;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+    100% { transform: scale(1); }
+}
+
+h1 {
+    text-align: center;
+    color: #2c3e50;
+    margin-top: 0;
+}
+
+.progress-info {
+    text-align: right;
+    font-size: 14px;
+    color: #7f8c8d;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.input-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+.question-block {
+    background: #f9fbfd;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border-left: 4px solid #3498db;
+}
+
+.question-title {
+    font-weight: bold;
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+.option {
+    display: block;
+    margin-bottom: 10px;
+    cursor: pointer;
+    padding: 10px;
+    border: 1px solid #e1e8ed;
+    border-radius: 6px;
+    background: #ffffff;
+    transition: all 0.2s;
+}
+
+.option:hover {
+    background: #eef5fc;
+    border-color: #3498db;
+}
+
+button {
+    width: 100%;
+    padding: 14px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+button:hover {
+    background-color: #2980b9;
+}
+
+button:disabled {
+    background-color: #bdc3c7;
+    cursor: not-allowed;
+}
+
+#quiz-screen, #result-box {
+    display: none;
+}
+
+.result-header {
+    text-align: center;
+    padding: 20px;
+    background: #e8f8f5;
+    border-radius: 8px;
+    border: 1px solid #2ecc71;
+    margin-bottom: 25px;
+}
+
+#result-text {
+    font-size: 18px;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.sub-text {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 0;
+}
+
+/* Стили для разбора ответов ученика */
+#review-container h3 {
+    margin-top: 0;
+    color: #2c3e50;
+    border-bottom: 2px solid #ecf0f1;
+    padding-bottom: 10px;
+}
+
+.review-item {
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    border-left: 5px solid #ccc;
+    background: #f9f9f9;
+}
+
+.review-item.correct {
+    background-color: #eafaf1;
+    border-left-color: #2ecc71;
+}
+
+.review-item.wrong {
+    background-color: #fdedec;
+    border-left-color: #e74c3c;
+}
+
+.review-item.unanswered {
+    background-color: #f4f6f7;
+    border-left-color: #95a5a6;
+}
+
+.review-question {
+    font-weight: bold;
+    margin-bottom: 8px;
+    font-size: 16px;
+}
+
+.review-answer {
+    font-size: 15px;
+    margin: 4px 0;
+}
+
+.review-correct-hint {
+    font-size: 15px;
+    color: #27ae60;
+    font-weight: bold;
+    margin-top: 6px;
+}
+
+
+</style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Плашка таймера -->
+    <div id="timer-bar" class="timer-bar">
+        Осталось времени: <span id="time-display">00:00</span>
+    </div>
+
+    <!-- Заголовок вашего теста -->
+    <h1>Тест по Физике: Термодинамика</h1>
+
+    <!-- ЭКРАН 1: Ввод имени -->
+    <div id="start-screen">
+        <div class="input-group">
+            <label for="student-name">Введите Фамилию, Имя и класс:</label>
+            <input type="text" id="student-name" placeholder="Например: Иванов Иван, 5А">
+        </div>
+        <button type="button" id="start-btn">Начать тест</button>
+    </div>
+
+    <!-- ЭКРАН 2: Пошаговые вопросы -->
+    <div id="quiz-screen">
+        <div class="progress-info" id="progress-text">Вопрос 1 из 3</div>
+        <div id="current-question-container"></div>
+        <button type="button" id="next-btn" disabled>Далее</button>
+    </div>
+
+    <!-- ЭКРАН 3: Результат и разбор ответов -->
+    <div id="result-box">
+        <div class="result-header">
+            <h2 id="result-title">Тест завершен!</h2>
+            <p id="result-text"></p>
+            <p class="sub-text">Ваши ответы успешно отправлены учителю.</p>
+        </div>
+        
+        <!-- Сюда подставится список всех вопросов с разбором -->
+        <div id="review-container"></div>
+    </div>
+</div>
+
+<script src="script.js"></script>
+<script>
+// ==========================================
+// 1. НАСТРОЙКИ УЧИТЕЛЯ (РЕДАКТИРОВАТЬ ЗДЕСЬ)
+// ==========================================
+
+const FORMCARRY_URL = "https://formcarry.com/s/lgEmkBjP926";
+const TIME_LIMIT_MINUTES = 3; // Время на тест в минутах
+
+const questions = [
+    {
+        question: "1. Газ изотермически сжали. Что произошло с его внутренней энергией?",
+        options: ["не изменилась", "уменьшилась", "увеличилась"],
+        correct: 0
+    },
+    {
+        question: "2. Двигатель имеет КПД 100%. Какой закон физики он нарушает?",
+        options: ["второй закон термодинамики", "первый закон термодинамики", "закон Бойля — Мариотта"],
+        correct: 0
+    },
+    {
+        question: "3. Внутренняя энергия идеального газа уменьшилась в 4 раза. Что произошло с его абсолютной температурой?",
+        options: ["уменьшилась в 4 раза", "увеличилась в 4 раза", "уменьшилась в 2 раза"],
+        correct: 0
+    },
+    {
+        question: "4. Газ расширился без подвода теплоты (Q = 0). Что произошло с его температурой?",
+        options: ["уменьшилась", "выросла", "не изменилась"],
+        correct: 0
+    },
+    {
+        question: "5. Укажите физическую величину, от которой НЕ зависит внутренняя энергия идеального одноатомного газа:",
+        options: ["объём сосуда", "температура газа", "количество вещества (число молей)"],
+        correct: 0
+    },
+    {
+        question: "6. В сосуде с жёсткими стенками нагрели газ. Что НЕ изменилось?",
+        options: ["работа газа (она равна 0)", "давление газа", "внутренняя энергия"],
+        correct: 0
+    },
+    {
+        question: "7. Может ли тепло само перейти от холодного тела к горячему?",
+        options: ["нет, ни при каких условиях", "да, при высоком давлении", "да, в вакууме"],
+        correct: 0
+    },
+    {
+        question: "8. В каком процессе всё переданное газу тепло полностью уходит на совершение работы?",
+        options: ["в изотермическом", "в изохорном", "в адиабатном"],
+        correct: 0
+    },
+    {
+        question: "9. Газ в цилиндре с подвижным поршнем охладили при постоянном давлении. Какой знак имеет работа газа?",
+        options: ["отрицательный (–)", "положительный (+)", "равна нулю"],
+        correct: 0
+    },
+    {
+        question: "10. Укажите неверное утверждение о внутренней энергии идеального одноатомного газа:",
+        options: ["зависит от формы сосуда", "зависит от температуры", "зависит от массы газа"],
+        correct: 0
+    }
+];
+
+
+questions.forEach(q => {
+    const correctAnswerText = q.options[q.correct];
+    for (let i = q.options.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [q.options[i], q.options[j]] = [q.options[j], q.options[i]];
+    }
+    q.correct = q.options.indexOf(correctAnswerText);
+});
+
+
+// ==========================================
+// 2. ЛОГИКА РАБОТЫ САЙТА (ДАЛЬШЕ НЕ ТРОГАТЬ)
+// ==========================================
+
+const startScreen = document.getElementById('start-screen');
+const quizScreen = document.getElementById('quiz-screen');
+const resultBox = document.getElementById('result-box');
+const reviewContainer = document.getElementById('review-container');
+const timerBar = document.getElementById('timer-bar');
+const timeDisplay = document.getElementById('time-display');
+
+const startBtn = document.getElementById('start-btn');
+const nextBtn = document.getElementById('next-btn');
+const questionContainer = document.getElementById('current-question-container');
+const progressText = document.getElementById('progress-text');
+
+let studentName = "";
+let currentQuestionIndex = 0;
+let userAnswers = new Array(questions.length).fill(null);
+
+let totalSeconds = TIME_LIMIT_MINUTES * 60;
+let timerInterval;
+let isSubmitted = false;
+
+startBtn.addEventListener('click', function() {
+    const inputVal = document.getElementById('student-name').value.trim();
+    if (!inputVal) {
+        alert("Пожалуйста, введите Фамилию и Имя перед началом теста!");
+        return;
+    }
+    studentName = inputVal;
+    
+    startScreen.style.display = 'none';
+    quizScreen.style.display = 'block';
+    timerBar.style.display = 'block';
+    
+    renderQuestion(currentQuestionIndex);
+    startTimer();
+});
+
+function renderQuestion(index) {
+    questionContainer.innerHTML = '';
+    nextBtn.disabled = true;
+
+    progressText.textContent = `Вопрос ${index + 1} из ${questions.length}`;
+    
+    if (index === questions.length - 1) {
+        nextBtn.textContent = "Завершить и отправить тест";
+    } else {
+        nextBtn.textContent = "Далее";
+    }
+
+    const q = questions[index];
+    const qDiv = document.createElement('div');
+    qDiv.className = 'question-block';
+
+    const qTitle = document.createElement('div');
+    qTitle.className = 'question-title';
+    qTitle.textContent = q.question;
+    qDiv.appendChild(qTitle);
+
+    q.options.forEach((opt, oIndex) => {
+        const label = document.createElement('label');
+        label.className = 'option';
+
+        const radio = document.createElement('input');
+        radio.type = 'radio';
+        radio.name = 'current_option';
+        radio.value = oIndex;
+
+        radio.addEventListener('change', function() {
+            userAnswers[index] = parseInt(this.value);
+            nextBtn.disabled = false;
+        });
+
+        label.appendChild(radio);
+        label.appendChild(document.createTextNode(" " + opt));
+        qDiv.appendChild(label);
+    });
+
+    questionContainer.appendChild(qDiv);
+}
+
+nextBtn.addEventListener('click', function() {
+    if (currentQuestionIndex < questions.length - 1) {
+        currentQuestionIndex++;
+        renderQuestion(currentQuestionIndex);
+    } else {
+        submitTest(false);
+    }
+});
+
+function startTimer() {
+    updateTimerDisplay();
+    timerInterval = setInterval(() => {
+        totalSeconds--;
+        updateTimerDisplay();
+
+        if (totalSeconds <= 60 && totalSeconds > 0) {
+            timerBar.classList.add('warning');
+        }
+
+        if (totalSeconds <= 0) {
+            clearInterval(timerInterval);
+            submitTest(true);
+        }
+    }, 1000);
+}
+
+function updateTimerDisplay() {
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    timeDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+}
+
+// Отрисовка разбора ответов для ученика
+function renderReview() {
+    reviewContainer.innerHTML = '<h3>Разбор ваших ответов:</h3>';
+
+    questions.forEach((q, qIndex) => {
+        const answerIndex = userAnswers[qIndex];
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'review-item';
+
+        const qTitle = document.createElement('div');
+        qTitle.className = 'review-question';
+        qTitle.textContent = q.question;
+        itemDiv.appendChild(qTitle);
+
+        const userAnsDiv = document.createElement('div');
+        userAnsDiv.className = 'review-answer';
+
+        if (answerIndex !== null) {
+            if (answerIndex === q.correct) {
+                itemDiv.classList.add('correct');
+                userAnsDiv.textContent = `Ваш ответ: ${q.options[answerIndex]} — Верно!`;
+                itemDiv.appendChild(userAnsDiv);
+            } else {
+                itemDiv.classList.add('wrong');
+                userAnsDiv.textContent = `Ваш ответ: ${q.options[answerIndex]} — Ошибка`;
+                itemDiv.appendChild(userAnsDiv);
+
+                const correctHint = document.createElement('div');
+                correctHint.className = 'review-correct-hint';
+                correctHint.textContent = `Правильный ответ: ${q.options[q.correct]}`;
+                itemDiv.appendChild(correctHint);
+            }
+        } else {
+            itemDiv.classList.add('unanswered');
+            userAnsDiv.textContent = `Ваш ответ: Нет ответа (время вышло)`;
+            itemDiv.appendChild(userAnsDiv);
+
+            const correctHint = document.createElement('div');
+            correctHint.className = 'review-correct-hint';
+            correctHint.textContent = `Правильный ответ: ${q.options[q.correct]}`;
+            itemDiv.appendChild(correctHint);
+        }
+
+        reviewContainer.appendChild(itemDiv);
+    });
+}
+
+async function submitTest(isTimeOut = false) {
+    if (isSubmitted) return;
+    isSubmitted = true;
+    clearInterval(timerInterval);
+
+    let correctCount = 0;
+    let wrongCount = 0;
+    let unansweredCount = 0;
+    let reportDetails = [];
+
+    questions.forEach((q, qIndex) => {
+        const answerIndex = userAnswers[qIndex];
+        
+        if (answerIndex !== null) {
+            if (answerIndex === q.correct) {
+                correctCount++;
+                reportDetails.push(
+                    `${q.question}\nСтатус: [ВЕРНО]\nОтвет ученика: ${q.options[answerIndex]}`
+                );
+            } else {
+                wrongCount++;
+                reportDetails.push(
+                    `${q.question}\nСтатус: [ОШИБКА]\nОтвет ученика: ${q.options[answerIndex]} (Правильно: ${q.options[q.correct]})`
+                );
+            }
+        } else {
+            unansweredCount++;
+            reportDetails.push(
+                `${q.question}\nСтатус: [НЕТ ОТВЕТА]\nОтвет ученика: — (Правильно: ${q.options[q.correct]})`
+            );
+        }
+    });
+
+        // Сразу показываем результат и разбор ошибок ученику
+    timerBar.style.display = 'none';
+    quizScreen.style.display = 'none';
+    resultBox.style.display = 'block';
+    
+    if (isTimeOut) {
+        document.getElementById('result-title').textContent = "Время вышло!";
+    }
+    document.getElementById('result-text').textContent = 
+        `${studentName}, ваш результат: ${correctCount} из ${questions.length} правильных ответов.`;
+    
+    renderReview();
+
+    // Отправляем отчет вам через FormCarry
+    const formData = {
+        "Ученик": studentName,
+        "Результат": `${correctCount} из ${questions.length} баллов`,
+        "Статус сдачи": isTimeOut ? "Время вышло (автоотправка)" : "Сдано вовремя",
+        "Сводка": `Верно: ${correctCount} | С ошибкой: ${wrongCount} | Без ответа: ${unansweredCount}`,
+        "Подробный разбор": "\n\n" + reportDetails.join("\n\n")
+    };
+
+    try {
+        await fetch("https://formcarry.com", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify(formData)
+        });
+    } catch (error) {
+        console.error("Ошибка отправки:", error);
+    }
+}
+
+</script>
+</body>
+</html>
